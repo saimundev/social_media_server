@@ -32,7 +32,7 @@ export const reguster = async (req, res) => {
     const sendToken = jwt.sign({ email: email }, process.env.JWT_SECRET, {
       expiresIn: "10m",
     });
-    const sendLink = `http://localhost:5173/email-varifacation?token=${sendToken}`;
+    const sendLink = `https://firend.netlify.app/email-varifacation?token=${sendToken}`;
 
     let transport = nodemailer.createTransport({
       service: "gmail",
@@ -168,7 +168,7 @@ export const forgetPasswordEmail = async (req, res) => {
         { expiresIn: "10m" }
       );
 
-      const sendLink = `http://localhost:5173/email-varefay?token=${userToken}`;
+      const sendLink = `https://firend.netlify.app/email-varefay?token=${userToken}`;
 
       let transport = nodemailer.createTransport({
         service: "gmail",
@@ -277,18 +277,19 @@ export const allUser = async (req, res) => {
 
 export const getFriend = async (req, res) => {
   const { id } = req.params;
+  console.log("params",id)
   try {
     const user = await UserModel.findById({ _id: id });
     const friend = await Promise.all(
       user.followings.map((friendId) => UserModel.findById({ _id: friendId }))
-    );
+    )
 
     let friendList = [];
     friend.map((fd) => {
       const { _id, name, profile } = fd;
       friendList.push({ _id, name, profile });
     });
-
+console.log("fd",friendList)
     res.status(200).json(friendList);
   } catch (error) {
     res.status(500).json({ message: "Server Error. Try again later" });
