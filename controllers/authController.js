@@ -137,19 +137,16 @@ export const login = async (req, res) => {
     //CHEAK IS USER EXIST
     const isExist = await UserModel.findOne({ email: email });
     if (!isExist) return res.status(400).json({ message: "User Not Found" });
-    if (isExist.isVarefay) {
-      //CHEAK MATCH PASSWORD
-      const isPasswordMatch = await bcrypt.compare(password, isExist.password);
-      if (!isPasswordMatch)
-        return res.status(400).json({ message: "Password Not Match" });
 
-      //CREATE TOKEN
-      const token = genAuthToken(isExist);
+    //CHEAK MATCH PASSWORD
+    const isPasswordMatch = await bcrypt.compare(password, isExist.password);
+    if (!isPasswordMatch)
+      return res.status(400).json({ message: "Password Not Match" });
 
-      res.status(200).json({ user: isExist, token });
-    } else {
-      res.status(400).json({ message: "Plese Varefide Your email And Login" });
-    }
+    //CREATE TOKEN
+    const token = genAuthToken(isExist);
+
+    res.status(200).json({ user: isExist, token });
   } catch (error) {
     res.status(500).json({ message: "Server Error, try again later" });
   }
@@ -226,8 +223,8 @@ export const forgetPasswordEmail = async (req, res) => {
 
 export const forgetPassword = async (req, res) => {
   const { token } = req.params;
-  const {password} = req.body;
-  console.log(token,password)
+  const { password } = req.body;
+  console.log(token, password);
   try {
     if (token) {
       const varefayToken = jwt.verify(token, process.env.JWT_SECRET);
@@ -277,19 +274,19 @@ export const allUser = async (req, res) => {
 
 export const getFriend = async (req, res) => {
   const { id } = req.params;
-  console.log("params",id)
+  console.log("params", id);
   try {
     const user = await UserModel.findById({ _id: id });
     const friend = await Promise.all(
       user.followings.map((friendId) => UserModel.findById({ _id: friendId }))
-    )
+    );
 
     let friendList = [];
     friend.map((fd) => {
       const { _id, name, profile } = fd;
       friendList.push({ _id, name, profile });
     });
-console.log("fd",friendList)
+    console.log("fd", friendList);
     res.status(200).json(friendList);
   } catch (error) {
     res.status(500).json({ message: "Server Error. Try again later" });
